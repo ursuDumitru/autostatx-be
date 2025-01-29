@@ -78,28 +78,4 @@ router.get('/analyzeVehicles', async (req, res) => {
     }
 });
 
-// API endpoint to serve the generated chart image
-router.get('/getChartImage', async (req, res) => {
-    try {
-        // Set the appropriate content type for the image
-        res.setHeader('Content-Type', 'image/png');
-
-        // Path to the chart image
-        const imagePath = path.join(__dirname, '../scripts/vehicle_stay_times_chart.png');
-
-        console.log('Serving chart image:', imagePath);
-
-        // Check if image exists before serving
-        if (fs.existsSync(imagePath)) {
-            console.log(1111)
-            return res.sendFile(imagePath);
-        } else {
-            return res.status(404).json({ error: 'Chart image not found.' });
-        }
-    } catch (error) {
-        console.error('Error generating chart image:', error);
-        res.status(500).json({ error: 'Failed to generate chart image.' });
-    }
-});
-
 module.exports = router;

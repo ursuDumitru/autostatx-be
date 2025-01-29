@@ -1,7 +1,6 @@
 const XLSX = require('xlsx');
 const path = require('path');
 const fs = require('fs');
-const { createCanvas } = require('canvas');
 
 // Function to calculate the number of unique cars, average time, and generate a graph
 async function analyzeVehicles(filePath, date, startTime, endTime, sheetName = null) {
@@ -51,79 +50,7 @@ async function analyzeVehicles(filePath, date, startTime, endTime, sheetName = n
     return {
         uniqueVehicles: uniqueVehicles.length,
         averageTime,
-        chartUrl: `/api/getChartImage`,
     };
-}
-
-// Function to generate the graph and save it locally
-async function generateGraph(uniqueVehicles, stayTimes) {
-    const width = 800;
-    const height = 600;
-
-    const canvas = createCanvas(width, height);
-    const ctx = canvas.getContext('2d');
-
-    // Background
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
-
-    // Chart title
-    ctx.fillStyle = '#000000';
-    ctx.font = '20px Arial';
-    ctx.fillText('Vehicle Stay Time Analysis', 20, 30);
-
-    // Determine max value for scaling
-    const maxTime = Math.max(...stayTimes);
-    const barWidth = 40;
-    const barSpacing = 20;
-    const chartHeight = 400;
-    const chartWidth = uniqueVehicles.length * (barWidth + barSpacing);
-    const chartOffsetX = 50;
-    const chartOffsetY = height - 100;
-
-    // Draw axes
-    ctx.strokeStyle = '#000000';
-    ctx.beginPath();
-    ctx.moveTo(chartOffsetX, chartOffsetY);
-    ctx.lineTo(chartOffsetX, chartOffsetY - chartHeight);
-    ctx.moveTo(chartOffsetX, chartOffsetY);
-    ctx.lineTo(chartOffsetX + chartWidth, chartOffsetY);
-    ctx.stroke();
-
-    // Draw bars
-    uniqueVehicles.forEach((vehicle, index) => {
-        const barHeight = (stayTimes[index] / maxTime) * chartHeight;
-
-        ctx.fillStyle = '#36a2eb';
-        ctx.fillRect(
-            chartOffsetX + index * (barWidth + barSpacing),
-            chartOffsetY - barHeight,
-            barWidth,
-            barHeight
-        );
-
-        // Add labels for vehicles
-        ctx.fillStyle = '#000000';
-        ctx.font = '12px Arial';
-        ctx.fillText(
-            vehicle,
-            chartOffsetX + index * (barWidth + barSpacing) + barWidth / 2 - 10,
-            chartOffsetY + 15
-        );
-    });
-
-    // Add Y-axis labels
-    ctx.fillStyle = '#000000';
-    ctx.font = '12px Arial';
-    ctx.fillText('0', chartOffsetX - 20, chartOffsetY);
-    ctx.fillText(`${Math.round(maxTime)} min`, chartOffsetX - 50, chartOffsetY - chartHeight);
-
-    // Save the chart to a file
-    const outputPath = path.join(__dirname, 'vehicle_stay_times_chart.png');
-    const buffer = canvas.toBuffer('image/png');
-    fs.writeFileSync(outputPath, buffer);
-
-    return outputPath; // Return the file path
 }
 
 // Export the analyzeVehicles function
